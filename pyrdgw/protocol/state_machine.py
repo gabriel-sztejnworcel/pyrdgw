@@ -115,7 +115,7 @@ class ProtocolStateMachine:
             HttpTunnelResponseFieldsPresentFlags.HTTP_TUNNEL_RESPONSE_FIELD_CAPS
 
         tunnel_response = TunnelResponse(
-            ProtocolVersion.SERVER_VERSION, 0, fields_present, 2, 0x3F)
+            ProtocolVersion.SERVER_VERSION, 0, fields_present, 0, 0x3F)
 
         send_buf = self.serializer.write_tunnel_response(tunnel_response)
 
@@ -184,7 +184,7 @@ class ProtocolStateMachine:
             raise Exception(LogMessages.COMM_FAILED_CONNECT_ANY_RESOURCE)
 
         fields_present = HttpChannelResponseFieldsPresentFlags.HTTP_CHANNEL_RESPONSE_FIELD_CHANNELID
-        channel_response = ChannelResponse(0, fields_present, 1)
+        channel_response = ChannelResponse(0, fields_present, 0)
 
         send_buf = self.serializer.write_channel_response(channel_response)
 
