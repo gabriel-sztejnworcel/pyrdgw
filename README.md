@@ -28,11 +28,11 @@ Currently, running PyRDGW will require some manual steps.
 3. If you are using a custom hostname in the certificate, the name should be resolvable also from within the machine running the server, to secure the communication between the GW and the WebSocket server (I might add an option to use non-TLS HTTP for this internal communication)
 4. Update the hostname, ports and certificate paths in config.json:
 
-![config](images/config_json.png)
+<img src="images/config_json.png" width="600px" height="350px">
 
 5. Run the server: `$ python main.py`. The log is written to the console, you should see a message saying the server is listening:
 
-![config](images/rdgw_listening.png)
+<img src="images/rdgw_listening.png" width="600px" height="350px">
 
 #### On the client machine:
 1. Import the CA certificate to the trusted CAs
@@ -49,4 +49,4 @@ server port:i:3389
 ```
 6. Click on the RDP file to connect, the session should open and you will be promped for the logon credentials to the server, either by NLA or by the LogonUI, and you should see indication about the connection in the server log:
 
-![config](images/connection.png)
+<img src="images/connection.png" width="850px" height="650px">
