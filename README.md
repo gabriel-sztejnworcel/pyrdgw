@@ -1,2 +1,2 @@
-# pyrdgw
-Python implementation of the Remote Desktop Gateway protocol [MS-TSGU]
+# PyRDGW
+Remote Desktop Gateway protocol [MS-TSGU] implementation in Python 3
