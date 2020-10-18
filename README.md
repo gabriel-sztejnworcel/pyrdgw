@@ -1,5 +1,5 @@
 # PyRDGW
-Remote Desktop Gateway protocol [MS-TSGU] server-side implementation in Python 3.
+Remote Desktop Gateway protocol [[MS-TSGU]](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-tsgu) server-side implementation in Python 3.
 
 ### What is Remote Desktop Gateway?
 Remote Desktop Gateway is a Windows Remote Desktop Services feature that provides an RDP (Remote Desktop Protocol) connection over a secure HTTPS tunnel. The main use case is to allow users to connect from the internet to servers inside the corporate network without the need for a VPN.
