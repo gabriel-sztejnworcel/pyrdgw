@@ -5,7 +5,10 @@ Remote Desktop Gateway protocol [[MS-TSGU]](https://docs.microsoft.com/en-us/ope
 Remote Desktop Gateway is a Windows Remote Desktop Services feature that provides an RDP (Remote Desktop Protocol) connection over a secure HTTPS tunnel. The main use case is to allow users to connect from the internet to servers inside a private network without the need for a VPN.
 
 ### Why do we need another implementation?
-The idea behind the project is to provide a cross platform lightweight implementation of the protocol to enable better deployment options for cloud environments, such as containers and container orchestration services, as well as to provide an open source implementation that can be fully customized.
+I started this project while studying the protocol, mainly for educational purposes. A cross platform lightweight implementation of the protocol could potentially enable better deployment options for cloud environments, such as containers and container orchestration services, as well as provide an open source implementation that can be fully customized.
+
+### Disclaimer
+This is work in progress. The code in more or less in proof-of-concepts stage, it not production ready by no means.
 
 ### Current Limitations
 - Only WebSocket transport is supported so only clients that support it should work
