@@ -8,7 +8,7 @@ Remote Desktop Gateway is a Windows Remote Desktop Services feature that provide
 I started this project while studying the protocol, mainly for educational purposes. A cross platform lightweight implementation of the protocol could potentially enable better deployment options for cloud environments, such as containers and container orchestration services, as well as provide an open source implementation that can be fully customized.
 
 ### Disclaimer
-This is work in progress. The code in more or less in proof-of-concepts stage, it not production ready by no means.
+This is work in progress. The code in more or less in proof-of-concepts stage, it's by no means production ready.
 
 ### Current Limitations
 - Only WebSocket transport is supported so only clients that support it should work
