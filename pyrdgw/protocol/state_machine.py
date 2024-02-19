@@ -224,7 +224,7 @@ class ProtocolStateMachine:
     async def __forward_data_server_to_client(self):
 
         while True:
-            data = await self.target_reader.read(65536)
+            data = await self.target_reader.read(10240)
             data_packet = DataPacket(data)
             send_buf = self.serializer.write_data_packet(data_packet)
             await self.websocket.send(send_buf)
