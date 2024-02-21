@@ -107,5 +107,5 @@ if __name__ == '__main__':
 
     except Exception as ex:
         
-        if logger != None:
+        if logger is not None:
             logger.error(ex)

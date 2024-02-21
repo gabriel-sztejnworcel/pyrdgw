@@ -63,7 +63,7 @@ class ProtocolStateMachine:
             msg = str(ex)
             self.logger.error(self.__msg_with_correlation_id(msg))
             
-            if self.server_to_client_task != None:
+            if self.server_to_client_task is not None:
                 await self.__close_target_connection()
 
             if self.websocket.open:
@@ -197,7 +197,7 @@ class ProtocolStateMachine:
 
     async def __handle_data_transfer(self):
         
-        if self.server_to_client_task == None:
+        if self.server_to_client_task is None:
             self.server_to_client_task = asyncio.ensure_future(self.__forward_data_server_to_client())
 
         recv_buf = await self.websocket.recv()
@@ -213,7 +213,7 @@ class ProtocolStateMachine:
 
             self.__log_received_protocol_message(HttpPacketType.PKT_TYPE_CLOSE_CHANNEL)
             
-            if self.server_to_client_task != None:
+            if self.server_to_client_task is not None:
                 await self.__close_target_connection()
 
             await self.__send_close_response_packet(close_packet.status_code)
