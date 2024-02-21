@@ -10,9 +10,10 @@ import logging
 
 class ProtocolStateMachine:
 
-    def __init__(self, websocket, auth_handler):
+    def __init__(self, websocket, authn_handler, authz_handler):
         self.websocket = websocket
-        self.auth_handler = auth_handler
+        self.authn_handler = authn_handler
+        self.authz_handler = authz_handler
 
         self.rdg_connection_id = websocket.rdg_connection_id
         self.rdg_correlation_id = websocket.rdg_correlation_id
@@ -93,10 +94,13 @@ class ProtocolStateMachine:
         recv_buf = await self.websocket.recv()
         tunnel_create = self.parser.read_tunnel_create(recv_buf)
 
-        if self.auth_handler:
-            approved = self.auth_handler(tunnel_create.paa_cookie)
-            if not approved:
-                raise Exception(LogMessages.AUTH_FAILED)
+        if self.authn_handler:
+            authenticated = self.authn_handler(self.rdg_connection_id,
+                                               self.rdg_correlation_id,
+                                               self.rdg_user_id,
+                                               tunnel_create.paa_cookie)
+            if not authenticated:
+                raise Exception(LogMessages.UNAUTHORIZED)
 
         self.__log_received_protocol_message(HttpPacketType.PKT_TYPE_TUNNEL_CREATE)
 
@@ -139,6 +143,15 @@ class ProtocolStateMachine:
 
         if channel_create.num_resources <= 0:
             raise Exception(LogMessages.PROTOCOL_NO_RESOURCES_FOR_CHANNEL)
+        
+        if self.authz_handler:
+            authorized = self.authz_handler(self.rdg_connection_id,
+                                            self.rdg_correlation_id,
+                                            self.rdg_user_id,
+                                            channel_create.resources,
+                                            channel_create.port)
+            if not authorized:
+                raise Exception(LogMessages.AUTHN_FAILED)
 
         connected = False
         for resource in channel_create.resources:

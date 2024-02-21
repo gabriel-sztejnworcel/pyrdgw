@@ -18,7 +18,8 @@ class LogMessages:
     PROTOCOL_SENDING_MESSAGE = 'Sending protocol message {}'
     PROTOCOL_RECEIVED_MESSAGE = 'Received protocol message {}'
 
-    AUTH_FAILED = 'Unauthorized connection'
+    AUTHN_FAILED = 'Authentication failure'
+    UNAUTHORIZED = 'Unauthorized'
 
     COMM_FAILED_CONNECT_ANY_RESOURCE = 'Failed to connect to any of the specified resources'
     COMM_CONNECTED_RESOURCE = 'Connected to target: {}:{}'

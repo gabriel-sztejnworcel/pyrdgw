@@ -10,17 +10,18 @@ from pyrdgw.server.rdgw_websocket_server_protocol import *
 
 class RDGWWebSocketServer:
 
-    def __init__(self, host, port, cert_path, key_path, auth_handler=None):
+    def __init__(self, host, port, cert_path, key_path, authn_handler=None, authz_handler=None):
         self.host = host
         self.port = port
         self.cert_path = cert_path
         self.key_path = key_path
-        self.auth_handler = auth_handler
+        self.authn_handler = authn_handler
+        self.authz_handler = authz_handler
         self.logger = logging.getLogger('pyrdgw')
 
     
     async def __websocket_handler(self, websocket, path):
-        state_machine = ProtocolStateMachine(websocket, self.auth_handler)
+        state_machine = ProtocolStateMachine(websocket, self.authn_handler, self.authz_handler)
         await state_machine.run()
 
     
