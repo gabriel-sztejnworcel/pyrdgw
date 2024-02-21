@@ -80,10 +80,10 @@ class ProtocolStateMachine:
         self.__log_received_protocol_message(HttpPacketType.PKT_TYPE_HANDSHAKE_REQUEST)
 
         if handshake_request.ver_major != ProtocolVersion.VER_MAJOR:
-            raise Exception(LogMessages.PROTOCOL_INVALID_MAJOR_VERION)
+            raise Exception(LogMessages.PROTOCOL_INVALID_MAJOR_VERSION)
 
         if handshake_request.ver_minor != ProtocolVersion.VER_MINOR:
-            raise Exception(LogMessages.PROTOCOL_INVALID_MINOR_VERION)
+            raise Exception(LogMessages.PROTOCOL_INVALID_MINOR_VERSION)
 
         if handshake_request.extended_auth != HttpExtendedAuth.HTTP_EXTENDED_AUTH_PAA:
             raise Exception(LogMessages.PROTOCOL_INVALID_AUTHENTICATION_METHOD)
