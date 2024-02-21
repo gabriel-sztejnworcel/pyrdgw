@@ -56,7 +56,7 @@ class ProtocolStateMachine:
                     await self.__handle_data_transfer()
 
                 else:
-                    pass
+                    self.logger.error("Invalid state detected")
 
         except Exception as ex:
 
