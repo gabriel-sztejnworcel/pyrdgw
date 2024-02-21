@@ -1,4 +1,3 @@
-
 import struct
 
 
@@ -38,7 +37,6 @@ class ReadableStream:
         return result
 
     def read_utf16str(self, length: int) -> str:
-
         assert len(self.buf) >= length
 
         if self.buf[length - 1] == 0 and self.buf[length - 2] == 0:

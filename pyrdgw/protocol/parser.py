@@ -1,4 +1,3 @@
-
 from pyrdgw.protocol.messages import *
 from pyrdgw.protocol.enumerations import *
 from pyrdgw.util.streams import *
@@ -8,14 +7,12 @@ from pyrdgw.log_messages import *
 class ProtocolParser:
 
     def peek_packet_type(self, buf: bytes) -> int:
-        
         stream = ReadableStream(buf)
         packet_type = stream.peek_uint16()
         return packet_type
 
     
     def read_handshake_request(self, buf: bytes) -> HandshakeRequest:
-        
         '''
         HTTP_HANDSHAKE_REQUEST_PACKET Structure:
 
@@ -32,13 +29,12 @@ class ProtocolParser:
         '''
 
         stream = ReadableStream(buf)
-
         packet_type = stream.read_uint16()
 
         if packet_type != HttpPacketType.PKT_TYPE_HANDSHAKE_REQUEST:
             raise Exception(LogMessages.PROTOCOL_INVALID_PACKET_TYPE)
 
-        reserved = stream.read_uint16()
+        _ = stream.read_uint16()    # Reserved field
         packet_length = stream.read_uint32()
 
         if packet_length != 14:
@@ -58,7 +54,6 @@ class ProtocolParser:
 
     
     def read_tunnel_create(self, buf: bytes) -> TunnelCreate:
-        
         '''
         HTTP_TUNNEL_PACKET Structure:
 
@@ -78,15 +73,13 @@ class ProtocolParser:
         cbLen                   - uint16
         blob                    - cbLen
         '''
-
         stream = ReadableStream(buf)
-
         packet_type = stream.read_uint16()
 
         if packet_type != HttpPacketType.PKT_TYPE_TUNNEL_CREATE:
             raise Exception(LogMessages.PROTOCOL_INVALID_PACKET_TYPE)
 
-        reserved = stream.read_uint16()
+        _ = stream.read_uint16()    # Reserved field
         packet_length = stream.read_uint32()
 
         caps_flags = stream.read_uint32()
@@ -95,7 +88,7 @@ class ProtocolParser:
         if fields_present != HttpTunnelPacketFieldsPresentFlags.HTTP_TUNNEL_PACKET_FIELD_PAA_COOKIE:
             raise Exception(LogMessages.PROTOCOL_MISSING_PAA_COOKIE)
 
-        reserved = stream.read_uint16()
+        _ = stream.read_uint16()    # Reserved field
         paa_cookie_length = stream.read_uint16()
 
         if packet_length != 18 + paa_cookie_length:
@@ -108,7 +101,6 @@ class ProtocolParser:
 
     
     def read_tunnel_authorize(self, buf: bytes) -> TunnelAuthorize:
-        
         '''
         HTTP_TUNNEL_AUTH_PACKET Structure:
 
@@ -128,21 +120,19 @@ class ProtocolParser:
         str                     - cbLen
         statementOfHealth       - NOT SUPPORTED
         '''
-
         stream = ReadableStream(buf)
-
         packet_type = stream.read_uint16()
 
         if packet_type != HttpPacketType.PKT_TYPE_TUNNEL_AUTH:
             raise Exception(LogMessages.PROTOCOL_INVALID_PACKET_TYPE)
 
-        reserved = stream.read_uint16()
+        _ = stream.read_uint16()    # Reserved field
         packet_length = stream.read_uint32()
 
         fields_present = stream.read_uint16()
 
         if fields_present != 0:
-            raise Exception(LogMessages.PROTOCOL_UNEXPECTED_FIELDS_TUNNEL_AUTH_OPTIONAL)
+            raise Exception(LogMessages.PROTOCOL_UNEXCPETED_FIELDS_TUNNEL_AUTH_OPTIONAL)
 
         client_name_length = stream.read_uint16()
 
@@ -156,7 +146,6 @@ class ProtocolParser:
 
     
     def read_channel_create(self, buf: bytes) -> ChannelCreate:
-        
         '''
         HTTP_CHANNEL_PACKET Structure:
 
@@ -175,15 +164,13 @@ class ProtocolParser:
         pResource               - Array<cbLen - uint16, str - cbLen> - numResources
         pAltResources           - Array<cbLen - uint16, str - cbLen> - numAltResources
         '''
-
         stream = ReadableStream(buf)
-
         packet_type = stream.read_uint16()
 
         if packet_type != HttpPacketType.PKT_TYPE_CHANNEL_CREATE:
             raise Exception(LogMessages.PROTOCOL_INVALID_PACKET_TYPE)
 
-        reserved = stream.read_uint16()
+        _ = stream.read_uint16()    # Reserved field
         packet_length = stream.read_uint32()
 
         num_resources = stream.read_uint8()
@@ -218,7 +205,6 @@ class ProtocolParser:
 
 
     def read_close_packet(self, buf: bytes) -> ClosePacket:
-        
         '''
         HTTP_CLOSE_PACKET Structure:
 
@@ -230,15 +216,13 @@ class ProtocolParser:
         Body:
         statusCode              - uint32
         '''
-
         stream = ReadableStream(buf)
-
         packet_type = stream.read_uint16()
 
         if packet_type != HttpPacketType.PKT_TYPE_CLOSE_CHANNEL:
             raise Exception(LogMessages.PROTOCOL_INVALID_PACKET_TYPE)
 
-        reserved = stream.read_uint16()
+        _ = stream.read_uint16()    # Reserved field
         packet_length = stream.read_uint32()
 
         if packet_length != 12:
@@ -251,7 +235,6 @@ class ProtocolParser:
 
 
     def read_data_packet(self, buf: bytes) -> DataPacket:
-        
         '''
         HTTP_DATA_PACKET Structure:
 
@@ -264,15 +247,13 @@ class ProtocolParser:
         cbDataLen               - uint16
         data                    - cbDataLen
         '''
-
         stream = ReadableStream(buf)
-
         packet_type = stream.read_uint16()
 
         if packet_type != HttpPacketType.PKT_TYPE_DATA:
             raise Exception(LogMessages.PROTOCOL_INVALID_PACKET_TYPE)
 
-        reserved = stream.read_uint16()
+        _ = stream.read_uint16()    # Reserved field
         packet_length = stream.read_uint32()
 
         data_length = stream.read_uint16()

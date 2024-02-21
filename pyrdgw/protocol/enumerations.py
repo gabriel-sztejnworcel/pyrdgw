@@ -1,4 +1,3 @@
-
 import enum
 
 class ProtocolState(enum.IntEnum):
