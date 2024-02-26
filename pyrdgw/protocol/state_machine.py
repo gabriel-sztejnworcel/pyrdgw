@@ -6,18 +6,20 @@ from pyrdgw.log_messages import *
 
 import asyncio
 import logging
+import uuid
 
 
 class ProtocolStateMachine:
 
-    def __init__(self, websocket, authn_handler, authz_handler):
+    def __init__(self, websocket, authentication_handler, authorization_handler):
         self.websocket = websocket
-        self.authn_handler = authn_handler
-        self.authz_handler = authz_handler
+        self.authentication_handler = authentication_handler
+        self.authorization_handler = authorization_handler
 
         self.rdg_connection_id = websocket.rdg_connection_id
         self.rdg_correlation_id = websocket.rdg_correlation_id
         self.rdg_user_id = websocket.rdg_user_id
+        self.server_session_id = uuid.uuid4()
 
         self.state: ProtocolState = ProtocolState.INITIAL
         self.parser = ProtocolParser()
@@ -94,13 +96,10 @@ class ProtocolStateMachine:
         recv_buf = await self.websocket.recv()
         tunnel_create = self.parser.read_tunnel_create(recv_buf)
 
-        if self.authn_handler:
-            authenticated = self.authn_handler(self.rdg_connection_id,
-                                               self.rdg_correlation_id,
-                                               self.rdg_user_id,
-                                               tunnel_create.paa_cookie)
+        if self.authentication_handler:
+            authenticated = self.authentication_handler(self.server_session_id, tunnel_create.paa_cookie)
             if not authenticated:
-                raise Exception(LogMessages.UNAUTHORIZED)
+                raise Exception(LogMessages.AUTHENTICATION_FAILURE)
 
         self.__log_received_protocol_message(HttpPacketType.PKT_TYPE_TUNNEL_CREATE)
 
@@ -144,14 +143,12 @@ class ProtocolStateMachine:
         if channel_create.num_resources <= 0:
             raise Exception(LogMessages.PROTOCOL_NO_RESOURCES_FOR_CHANNEL)
         
-        if self.authz_handler:
-            authorized = self.authz_handler(self.rdg_connection_id,
-                                            self.rdg_correlation_id,
-                                            self.rdg_user_id,
+        if self.authorization_handler:
+            authorized = self.authorization_handler(self.server_session_id,
                                             channel_create.resources,
                                             channel_create.port)
             if not authorized:
-                raise Exception(LogMessages.AUTHN_FAILED)
+                raise Exception(LogMessages.AUTHORIZATION_FAIURE)
 
         connected = False
         for resource in channel_create.resources:

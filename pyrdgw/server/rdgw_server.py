@@ -8,20 +8,20 @@ from pyrdgw.protocol.state_machine import *
 from pyrdgw.server.rdgw_websocket_server_protocol import *
 
 
-class RDGWWebSocketServer:
+class RDGWServer:
 
-    def __init__(self, host, port, cert_path, key_path, authn_handler=None, authz_handler=None):
+    def __init__(self, host, port, cert_path, key_path, authentication_handler=None, authorization_handler=None):
         self.host = host
         self.port = port
         self.cert_path = cert_path
         self.key_path = key_path
-        self.authn_handler = authn_handler
-        self.authz_handler = authz_handler
+        self.authentication_handler = authentication_handler
+        self.authorization_handler = authorization_handler
         self.logger = logging.getLogger('pyrdgw')
 
     
     async def __websocket_handler(self, websocket, path):
-        state_machine = ProtocolStateMachine(websocket, self.authn_handler, self.authz_handler)
+        state_machine = ProtocolStateMachine(websocket, self.authentication_handler, self.authorization_handler)
         await state_machine.run()
 
     
