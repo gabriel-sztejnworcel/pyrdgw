@@ -132,7 +132,7 @@ class ProtocolParser:
         fields_present = stream.read_uint16()
 
         if fields_present != 0:
-            raise Exception(LogMessages.PROTOCOL_UNEXCPETED_FIELDS_TUNNEL_AUTH_OPTIONAL)
+            raise Exception(LogMessages.PROTOCOL_UNEXPECTED_FIELDS_TUNNEL_AUTH_OPTIONAL)
 
         client_name_length = stream.read_uint16()
 

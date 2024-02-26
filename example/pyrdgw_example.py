@@ -25,7 +25,6 @@ try:
                                            key_path='d:/certs/gabriel.com.key',
                                            authn_handler=authn_handler,
                                            authz_handler=authz_handler)
-    
     websocket_server.run()
     loop = asyncio.get_event_loop()
     loop.run_forever()

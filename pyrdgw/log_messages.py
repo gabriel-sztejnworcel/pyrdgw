@@ -11,7 +11,7 @@ class LogMessages:
     PROTOCOL_INVALID_PACKET_LENGTH = 'Invalid packet length'
     PROTOCOL_INVALID_CLIENT_VERSION = 'Invalid client version'
     PROTOCOL_MISSING_PAA_COOKIE = 'PAA cookie is missing'
-    PROTOCOL_UNEXCPETED_FIELDS_TUNNEL_AUTH_OPTIONAL = 'Unexpected optional fields in tunnel authorize request'
+    PROTOCOL_UNEXPECTED_FIELDS_TUNNEL_AUTH_OPTIONAL = 'Unexpected optional fields in tunnel authorize request'
     PROTOCOL_INVALID_PROTOCOL_CHANNEL_CREATE = 'Invalid protocol in channel create request'
     PROTOCOL_TRANSITION_STATE = 'Transition from state {} to {}'
     PROTOCOL_RECEIVED_CLIENT_NAME = 'Received client name: {}'
