@@ -15,13 +15,13 @@ def authorization_handler(server_session_id, resources, port):
     return True
 
 try:
-    websocket_server = RDGWServer(host='localhost',
-                                  port=443,
-                                  cert_path='d:/certs/gabriel.com.crt',
-                                  key_path='d:/certs/gabriel.com.key',
-                                  authentication_handler=authentication_handler,
-                                  authorization_handler=authorization_handler)
-    websocket_server.run()
+    server = RDGWServer(host='localhost',
+                        port=443,
+                        cert_path='d:/certs/gabriel.com.crt',
+                        key_path='d:/certs/gabriel.com.key',
+                        authentication_handler=authentication_handler,
+                        authorization_handler=authorization_handler)
+    server.run()
     loop = asyncio.get_event_loop()
     loop.run_forever()
 
