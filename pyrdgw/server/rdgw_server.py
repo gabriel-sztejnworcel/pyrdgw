@@ -20,7 +20,7 @@ class RDGWServer:
         self.logger = logging.getLogger('pyrdgw')
 
     
-    async def __websocket_handler(self, websocket, path):
+    async def websocket_handler(self, websocket, path):
         state_machine = ProtocolStateMachine(websocket, self.authentication_handler, self.authorization_handler)
         await state_machine.run()
 
@@ -30,7 +30,7 @@ class RDGWServer:
         ssl_context.load_cert_chain(self.cert_path, self.key_path)
 
         start_server = websockets.serve(
-            self.__websocket_handler, self.host, self.port, ssl=ssl_context, create_protocol=RDGWWebSocketServerProtocol)
+            self.websocket_handler, self.host, self.port, ssl=ssl_context, create_protocol=RDGWWebSocketServerProtocol)
 
         asyncio.get_event_loop().run_until_complete(start_server)
 

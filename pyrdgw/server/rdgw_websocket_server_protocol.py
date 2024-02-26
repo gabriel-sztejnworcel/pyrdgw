@@ -14,8 +14,11 @@ class RDGWWebSocketServerProtocol(websockets.WebSocketServerProtocol):
         self.rdg_user_id = ''
         self.logger = logging.getLogger('pyrdgw')
         super().__init__(*args, **kwargs)
-        
 
+    '''
+    This function overrides websockets' read_http_request to allow the websocket request to succeed, since
+    RDGW uses RDG_OUT_DATA HTTP method in the websocket upgrade request, instead of the standard GET method.
+    '''
     async def read_http_request(self):
         stream = self.reader
         try:
@@ -33,8 +36,10 @@ class RDGWWebSocketServerProtocol(websockets.WebSocketServerProtocol):
 
             if method != b"RDG_OUT_DATA":
                 raise ValueError(f"unsupported HTTP method: {d(method)}")
+
             if version != b"HTTP/1.1":
                 raise ValueError(f"unsupported HTTP version: {d(version)}")
+
             path = raw_path.decode("ascii", "surrogateescape")
 
             headers = await read_headers(stream)
@@ -46,7 +51,7 @@ class RDGWWebSocketServerProtocol(websockets.WebSocketServerProtocol):
             raise InvalidMessage("did not receive a valid HTTP request") from exc
 
         if self.debug:
-            self.logger.debug("< GET %s HTTP/1.1", path)
+            self.logger.debug("< RDG_OUT_DATA %s HTTP/1.1", path)
             for key, value in headers.raw_items():
                 self.logger.debug("< %s: %s", key, value)
 
