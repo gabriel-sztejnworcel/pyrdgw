@@ -96,19 +96,20 @@ class ProtocolStateMachine:
         recv_buf = await self.websocket.recv()
         tunnel_create = self.parser.read_tunnel_create(recv_buf)
 
-        if self.authentication_handler:
-            authenticated = self.authentication_handler(self.server_session_id, tunnel_create.paa_cookie)
-            if not authenticated:
-                raise Exception(LogMessages.AUTHENTICATION_FAILURE)
-
         self.log_received_protocol_message(HttpPacketType.PKT_TYPE_TUNNEL_CREATE)
 
         fields_present = \
             HttpTunnelResponseFieldsPresentFlags.HTTP_TUNNEL_RESPONSE_FIELD_TUNNEL_ID | \
             HttpTunnelResponseFieldsPresentFlags.HTTP_TUNNEL_RESPONSE_FIELD_CAPS
 
+        status_code = 0
+        if self.authentication_handler:
+            authenticated = self.authentication_handler(self.server_session_id, tunnel_create.paa_cookie)
+            if not authenticated:
+                status_code = 1
+
         tunnel_response = TunnelResponse(
-            ProtocolVersion.SERVER_VERSION, 0, fields_present, 0, 0x3F)
+            ProtocolVersion.SERVER_VERSION, status_code, fields_present, 0, 0x3F)
 
         send_buf = self.serializer.write_tunnel_response(tunnel_response)
         self.log_sending_protocol_message(HttpPacketType.PKT_TYPE_TUNNEL_RESPONSE)
@@ -143,33 +144,35 @@ class ProtocolStateMachine:
         if channel_create.num_resources <= 0:
             raise Exception(LogMessages.PROTOCOL_NO_RESOURCES_FOR_CHANNEL)
         
+        error_code = 0
         if self.authorization_handler:
             authorized = self.authorization_handler(self.server_session_id,
                                             channel_create.resources,
                                             channel_create.port)
             if not authorized:
-                raise Exception(LogMessages.AUTHORIZATION_FAIURE)
+                error_code = 1
 
-        connected = False
-        for resource in channel_create.resources:
-            try:
-                self.target_reader, self.target_writer = await asyncio.open_connection(
-                    resource, channel_create.port)
+        if error_code == 0:
+            connected = False
+            for resource in channel_create.resources:
+                try:
+                    self.target_reader, self.target_writer = await asyncio.open_connection(
+                        resource, channel_create.port)
 
-                connected = True
-                msg = LogMessages.COMM_CONNECTED_RESOURCE.format(resource, channel_create.port)
-                self.logger.info(self.msg_with_correlation_id(msg))
-                break
+                    connected = True
+                    msg = LogMessages.COMM_CONNECTED_RESOURCE.format(resource, channel_create.port)
+                    self.logger.info(self.msg_with_correlation_id(msg))
+                    break
 
-            except Exception as ex:
-                msg = LogMessages.COMM_FAILED_CONNECT_RESOURCE.format(resource, channel_create.port, str(ex))
-                self.logger.warning(self.msg_with_correlation_id(msg))
+                except Exception as ex:
+                    msg = LogMessages.COMM_FAILED_CONNECT_RESOURCE.format(resource, channel_create.port, str(ex))
+                    self.logger.warning(self.msg_with_correlation_id(msg))
 
-        if not connected:
-            raise Exception(LogMessages.COMM_FAILED_CONNECT_ANY_RESOURCE)
+            if not connected:
+                raise Exception(LogMessages.COMM_FAILED_CONNECT_ANY_RESOURCE)
 
         fields_present = HttpChannelResponseFieldsPresentFlags.HTTP_CHANNEL_RESPONSE_FIELD_CHANNELID
-        channel_response = ChannelResponse(0, fields_present, 0)
+        channel_response = ChannelResponse(error_code, fields_present, 0)
         send_buf = self.serializer.write_channel_response(channel_response)
         self.log_sending_protocol_message(HttpPacketType.PKT_TYPE_CHANNEL_RESPONSE)
         await self.websocket.send(send_buf)
