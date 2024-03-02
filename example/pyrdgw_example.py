@@ -17,8 +17,8 @@ def authorization_handler(server_session_id, resources, port):
 try:
     server = RDGWServer(host='localhost',
                         port=443,
-                        cert_path='d:/certs/gabriel.com.crt',
-                        key_path='d:/certs/gabriel.com.key',
+                        cert_path='cert.pem',
+                        key_path='key.pem',
                         authentication_handler=authentication_handler,
                         authorization_handler=authorization_handler)
     server.run()
