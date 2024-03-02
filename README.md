@@ -2,45 +2,58 @@
 Remote Desktop Gateway protocol [[MS-TSGU]](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-tsgu) server-side implementation in Python 3.
 
 ### What is Remote Desktop Gateway?
-Remote Desktop Gateway is a Windows Remote Desktop Services feature that provides an RDP (Remote Desktop Protocol) connection over a secure HTTPS tunnel. The main use case is to allow users to connect from the internet to servers inside a private network without the need for a VPN.
-
-### Why do we need another implementation?
-I started this project while studying the protocol, mainly for educational purposes. A cross platform lightweight implementation of the protocol could potentially enable better deployment options for cloud environments, such as containers and container orchestration services, as well as provide an open source implementation that can be fully customized.
-
-### Disclaimer
-This is work in progress. The code in more or less in proof-of-concepts stage, it's by no means production ready.
+Remote Desktop Gateway provides an RDP (Remote Desktop Protocol) connection over a secure HTTPS tunnel. The main use case is to allow users to connect from the internet to servers inside a private network without the need for a VPN.
 
 ### Current Limitations
-- Only WebSocket transport is supported so only clients that support it should work
-  - MSTSC on Windows 10 and Windows Server 2016 and above should work
-  - Support for non-WebSocket HTTP transport is planned to be added
-  - Support for RPC over HTTP and UDP transport is not planned
-  - WebSocket query string is not supported
-- The only supported authentication method is PAA
-  - Clients need to provide an access token. Any token will be accepted for now, but the client need to send one
-  - A hook point for custom authentication logic based on the access token is planned to be added
-- No authorization
-  - Everyone is authorized for everything
-  - Authorization policies is planned to be added, probably using config.json
+- Only WebSocket transport is supported so only clients that support it should work (MSTSC on Windows 10 and Windows Server 2016 and above should work).
+- The only supported authentication method is PAA, clients need to provide an access token which will be passed to the authentication handler callback to perform the authentication.
 
-### Get it up and running
-Currently, running PyRDGW will require some manual steps.
-#### On the server machine:
-1. Install Python dependencies: websockets and http_parser
-2. Create a certificate for the RD Gateway server and the WebSocket internal server (they can use the same certificate)
-3. If you are using a custom hostname in the certificate, the name should be resolvable also from within the machine running the server, to secure the communication between the GW and the WebSocket server (I might add an option to use non-TLS HTTP for this internal communication)
-4. Update the hostname, ports and certificate paths in config.json:
+### Building and Installing
+```
+python setup.py bdist_wheel
+python -m pip install path/to/whl/file
+```
 
-<img src="images/config_json.png" width="600px" height="350px">
+### Running
+Example code for running the server:
+```
+import logging
+import asyncio
 
-5. Run the server: `$ python main.py`. The log is written to the console, you should see a message saying the server is listening:
+from pyrdgw.server.rdgw_server import RDGWServer
 
-<img src="images/rdgw_listening.png" width="600px" height="350px">
+def authentication_handler(server_session_id, paa_cookie):
+    print('server_session_id:', str(server_session_id))
+    print('paa_cookie:', paa_cookie.decode('utf-16'))
+    return True
 
-#### On the client machine:
-1. Import the CA certificate to the trusted CAs
-2. The server hostname should be resolvable by the client, update /etc/hosts if necessary
-3. Create an RDP file for the connection like the following example (since we are using PAA, it's not possible to configure the connection through the MSTSC UI, I'm not sure about other RDP clients), set the address of your target server in the "full address" field, and the RD Gateway hostname:
+def authorization_handler(server_session_id, resources, port):
+    print('server_session_id:', str(server_session_id))
+    print('resources:', resources)
+    print('port:', port)
+    return True
+
+try:
+    server = RDGWServer(host='localhost',
+                        port=443,
+                        cert_path='cert.pem',
+                        key_path='key.pem',
+                        authentication_handler=authentication_handler,
+                        authorization_handler=authorization_handler)
+    server.run()
+    loop = asyncio.get_event_loop()
+    loop.run_forever()
+
+except Exception as ex:
+    logger = logging.getLogger('pyrdgw')
+    logger.error(ex)
+```
+- A certificate and the matching private key must be provided.
+- The user can pass callbacks for authentication and authorization. The access token (PAA cookie) from the client is passed to the authentication handler together with a session id which can be used to store any required state for the authorization handler, which is called later to decide if the client is allowed to connect to the requested resource.
+
+### On the Client Machine
+- The CA certificate must be trusted by the client, and the RDGW hostname should be resolvable by the client and match the certificate.
+- The client must provide an access token, this can be done by using an RDP file with 'gatewayaccesstoken', like the example below.
 ```
 full address:s:192.168.0.101
 gatewaycredentialssource:i:5
@@ -50,6 +63,3 @@ gatewayprofileusagemethod:i:1
 gatewayusagemethod:i:1
 server port:i:3389
 ```
-6. Click on the RDP file to connect, the session should open and you will be promped for the logon credentials to the server, either by NLA or by the LogonUI, and you should see indication about the connection in the server log:
-
-<img src="images/connection.png" width="850px" height="650px">
