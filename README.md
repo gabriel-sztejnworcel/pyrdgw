@@ -52,7 +52,7 @@ except Exception as ex:
 - The user can pass callbacks for authentication and authorization. The access token (PAA cookie) from the client is passed to the authentication handler together with a session id which can be used to store any required state for the authorization handler, which is called later to decide if the client is allowed to connect to the requested resource.
 
 ### On the Client Machine
-- The CA certificate must be trusted by the client, and the RDGW hostname should resolvable by the client and match the certificate.
+- The CA certificate must be trusted by the client, and the RDGW hostname should be resolvable by the client and match the certificate.
 - The client must provide an access token, this can be done by using an RDP file with 'gatewayaccesstoken', like the example below.
 ```
 full address:s:192.168.0.101
