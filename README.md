@@ -10,6 +10,8 @@ Remote Desktop Gateway provides an RDP (Remote Desktop Protocol) connection over
 
 ### Building and Installing
 ```
+pip install wheel
+pip install setuptools
 python setup.py bdist_wheel
 python -m pip install path/to/whl/file
 ```
